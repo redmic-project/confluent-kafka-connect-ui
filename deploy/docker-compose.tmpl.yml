@@ -4,7 +4,7 @@ services:
   kafka-connect-ui:
     image: ${IMAGE_NAME:-landoop/kafka-connect-ui}:${IMAGE_TAG:-latest}
     environment:
-      CONNECT_URL: http://connect:${CN_PORT}
+      CONNECT_URL: http://kafka-connect:${CN_PORT}
       KAFKA_TOPICS_UI: 'https://kafkatopicsui.${PUBLIC_HOSTNAME}'
       PROXY:
       KAFKA_TOPICS_UI_ENABLED:

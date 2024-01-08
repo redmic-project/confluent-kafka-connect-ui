@@ -2,38 +2,40 @@ services:
   kafka-connect-ui:
     image: ${IMAGE_NAME:-landoop/kafka-connect-ui}:${IMAGE_TAG:-latest}
     environment:
-      CONNECT_URL: http://kafka-connect:${CN_PORT}
-      KAFKA_TOPICS_UI: 'https://kafkatopicsui.${PUBLIC_HOSTNAME}'
+      CONNECT_URL:
       PROXY:
       KAFKA_TOPICS_UI_ENABLED:
+      KAFKA_TOPICS_UI: 'https://kafkatopicsui.${PUBLIC_HOSTNAME}'
     networks:
       kafka-net:
       traefik-net:
     healthcheck:
-      test: wget --spider -S -t 1 http://localhost:${UI_PORT}
+      test: wget --spider -S -t 1 http://localhost:${PORT}
       interval: ${HEALTHCHECK_INTERVAL:-30s}
       timeout: ${HEALTHCHECK_TIMEOUT:-10s}
-      retries: ${HEALTHCHECK_RETRIES:-3}
-      start_period: ${HEALTHCHECK_START_PERIOD:-2m}
+      retries: ${HEALTHCHECK_RETRIES:-5}
+      start_period: ${HEALTHCHECK_START_PERIOD:-1m}
     deploy:
       mode: replicated
       replicas: ${REPLICAS:-1}
-      labels:
-        traefik.frontend.auth.basic.users: ${UI_AUTH}
-        traefik.frontend.rule: Host:kafkaconnectui.${PUBLIC_HOSTNAME}
-        traefik.backend: kafka-connect-ui
-        traefik.port: '${UI_PORT}'
       restart_policy:
         delay: ${RESTART_DELAY:-30s}
       update_config:
         delay: ${UPDATE_DELAY:-1m}
+      labels:
+        traefik.enable: ${TRAEFIK_ENABLE:-true}
+        traefik.http.routers.kafka-connect-ui.entrypoints: ${TRAEFIK_ENTRYPOINT:-http}
+        traefik.http.routers.kafka-connect-ui.rule: Host(`${TRAEFIK_SUBDOMAIN:-kafkaconnectui}.${PUBLIC_HOSTNAME}`)
+        traefik.http.middlewares.kafka-connect-ui-auth.basicauth.users: ${TRAEFIK_AUTH}
+        traefik.http.routers.kafka-connect-ui.middlewares: kafka-connect-ui-auth
+        traefik.http.services.kafka-connect-ui.loadbalancer.server.port: ${PORT}
       resources:
         limits:
           cpus: '${RESOURCES_LIMITS_CPUS:-0.5}'
           memory: ${RESOURCES_LIMITS_MEMORY:-64M}
         reservations:
           cpus: '${RESOURCES_RESERVATIONS_CPUS:-0.001}'
-          memory: ${RESOURCES_RESERVATIONS_MEMORY:-52M}
+          memory: ${RESOURCES_RESERVATIONS_MEMORY:-16M}
 
 networks:
   kafka-net:

@@ -1,5 +1,3 @@
-version: '3.5'
-
 services:
   kafka-connect-ui:
     image: ${IMAGE_NAME:-landoop/kafka-connect-ui}:${IMAGE_TAG:-latest}

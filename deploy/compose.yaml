@@ -3,6 +3,7 @@ services:
     image: ${IMAGE_NAME:-landoop/kafka-connect-ui}:${IMAGE_TAG:-latest}
     environment:
       CONNECT_URL:
+      PORT:
       PROXY:
       KAFKA_TOPICS_UI_ENABLED:
       KAFKA_TOPICS_UI: 'https://kafkatopicsui.${PUBLIC_HOSTNAME}'
@@ -10,7 +11,7 @@ services:
       kafka-net:
       traefik-net:
     healthcheck:
-      test: wget --spider -S -t 1 http://localhost:${PORT}
+      test: wget --spider -nv http://localhost:${PORT}
       interval: ${HEALTHCHECK_INTERVAL:-30s}
       timeout: ${HEALTHCHECK_TIMEOUT:-10s}
       retries: ${HEALTHCHECK_RETRIES:-5}
